@@ -33,7 +33,7 @@ const Chat = () => {
                     toast.error(data.message || 'No plan found');
                 }
             } catch (error) {
-                toast.error(error.message || 'Failed to load plan');
+                console.error(error.message || 'Failed to load plan');
             }
         };
         fetchPlan();
@@ -76,7 +76,7 @@ const Chat = () => {
             }
         } catch (error) {
             console.error('Frontend error:', error.response?.data || error.message);
-            toast.error(error.response?.data?.error || error.message);
+            console.error(error.response?.data?.error || error.message);
         }
     };
 
