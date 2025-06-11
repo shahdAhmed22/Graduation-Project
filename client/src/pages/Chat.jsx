@@ -5,11 +5,9 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const Chat = () => {
-<<<<<<< HEAD
-    const { currency, getToken } = useAppContext();
-=======
+
     const {  currency, getToken } = useAppContext();
->>>>>>> 08dd65d1b26f111c0027576293ada615b6f7400f
+
     
     const [plan, setPlan] = useState(null);
     const [mainImage, setMainImage] = useState(null);
@@ -37,11 +35,7 @@ const Chat = () => {
                     toast.error(data.message || 'No plan found');
                 }
             } catch (error) {
-<<<<<<< HEAD
-                toast.error(error.message || 'Failed to load plan');
-=======
                 console.error(error.message || 'Failed to load plan');
->>>>>>> 08dd65d1b26f111c0027576293ada615b6f7400f
             }
         };
         fetchPlan();
@@ -69,28 +63,21 @@ const Chat = () => {
             if (data.success) {
                 setPlan(data.data);
                 setMainImage(data.data.room.images?.[0] || data.data.events?.[0]?.images?.[0]);
-<<<<<<< HEAD
-                
+   
                 // Calculate total budget
                 const calculatedBudget = data.data.room.totalCost + 
                     (data.data.events?.reduce((sum, event) => sum + event.cost, 0) || 0);
 
-=======
->>>>>>> 08dd65d1b26f111c0027576293ada615b6f7400f
+
                 if (data.message) {
                     // Handle fallback plan due to parsing error
                     setModalMessage(data.message);
                     setShowModal(true);
-<<<<<<< HEAD
+
                 } else if (calculatedBudget > budget && calculatedBudget - budget > 1000) {
                     setModalMessage(`The lowest available budget is ${currency}${calculatedBudget}. A plan has been generated using this budget.`);
                     setShowModal(true);
-=======
->>>>>>> 08dd65d1b26f111c0027576293ada615b6f7400f
-                } else if (data.budgetAdjusted && data.usedBudget > budget) {
-                    setModalMessage(`The lowest available budget is ${currency}${data.usedBudget}. A plan has been generated using this budget.`);
-                    setShowModal(true);
-                } else {
+                }else {
                     toast.success('Plan generated successfully');
                 }
             } else {
@@ -98,11 +85,9 @@ const Chat = () => {
             }
         } catch (error) {
             console.error('Frontend error:', error.response?.data || error.message);
-<<<<<<< HEAD
-            toast.error(error.response?.data?.error || error.message);
-=======
+
             console.error(error.response?.data?.error || error.message);
->>>>>>> 08dd65d1b26f111c0027576293ada615b6f7400f
+
         }
     };
 
