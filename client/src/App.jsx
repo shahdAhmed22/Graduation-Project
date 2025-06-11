@@ -14,6 +14,9 @@ import RoomDetails from './pages/RoomDetails'
 import Footer from './components/Footer'
 import MyBookings from './pages/MyBookings'
 import Loader from './components/Loader'
+import AllEvents from './pages/AllEvents'
+import EventDetails from './pages/EventDetails'
+import Chat from './pages/Chat'
 
 const App = () => {
 
@@ -32,6 +35,9 @@ const App = () => {
         <Route path='/' element={<Home />} />
         <Route path='/rooms' element={<AllRooms />} />
         <Route path='/rooms/:id' element={<RoomDetails />} />
+        <Route path='/events' element={<AllEvents />} />
+        <Route path='/events/:id' element={<EventDetails />} />
+        <Route path='/chat' element={<Chat />} />
         <Route path='my-bookings' element={<MyBookings />} />
         < Route path="/loader/:nextUrl" element={<Loader />} />
         <Route path="/owner" element={<Layout />}>

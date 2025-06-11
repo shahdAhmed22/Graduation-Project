@@ -5,35 +5,61 @@ import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
 
 const MyBookings = () => {
-
     const { axios, getToken, user } = useAppContext();
     const [bookings, setBookings] = useState([]);
 
-
     const fetchUserBookings = async () => {
         try {
-            const { data } = await axios.get('/api/bookings/user', { headers: { Authorization: `Bearer ${await getToken()}` } })
+            const { data } = await axios.get('/api/bookings/user', { 
+                headers: { Authorization: `Bearer ${await getToken()}` } 
+            });
             if (data.success) {
-                setBookings(data.bookings)
-            }
-            else {
-                toast.error(data.message)
+                setBookings(data.bookings);
+            } else {
+                toast.error(data.message || 'Failed to fetch bookings');
             }
         } catch (error) {
-            toast.error(error.message)
+            console.error(error.message || 'Failed to fetch bookings');
+        }
+    }
+
+    const handleCancelBooking = async (bookingId) => {
+        if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+        
+        try {
+            const { data } = await axios.delete(`/api/bookings/cancel/${bookingId}`, {
+                headers: { Authorization: `Bearer ${await getToken()}` }
+            });
+            if (data.success) {
+                toast.dismiss(); // Clear any lingering toasts
+                toast.success(data.message || 'Booking cancelled successfully');
+                // Optimistically update state to remove the cancelled booking
+                setBookings(prev => prev.filter(booking => booking._id !== bookingId));
+                // Fetch fresh data to ensure consistency
+                await fetchUserBookings();
+            } else {
+                toast.error(data.message || 'Failed to cancel booking');
+            }
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || 'An error occurred while cancelling the booking';
+            console.error(errorMessage);
         }
     }
 
     const handlePayment = async (bookingId) => {
         try {
-            const { data } = await axios.post('/api/bookings/stripe-payment', { bookingId }, { headers: { Authorization: `Bearer ${await getToken()}` } })
+            const { data } = await axios.post('/api/bookings/stripe-payment', { 
+                bookingId 
+            }, { 
+                headers: { Authorization: `Bearer ${await getToken()}` } 
+            });
             if (data.success) {
-                window.location.href = data.url
+                window.location.href = data.url;
             } else {
-                toast.error(data.message)
+                toast.error(data.message || 'Failed to initiate payment');
             }
         } catch (error) {
-            toast.error(error.message)
+            console.error(error.message || 'Failed to initiate payment');
         }
     }
 
@@ -93,10 +119,19 @@ const MyBookings = () => {
                                 </p>
                             </div>
                             {!booking.isPaid && (
-                                <button onClick={()=> handlePayment(booking._id)} className="px-4 py-1.5 mt-4 text-xs border border-gray-400 rounded-full hover:bg-gray-50 transition-all cursor-pointer">
+                                <button 
+                                    onClick={() => handlePayment(booking._id)} 
+                                    className="px-4 py-1.5 mt-4 text-xs border border-gray-400 rounded-full hover:bg-gray-50 transition-all cursor-pointer"
+                                >
                                     Pay Now
                                 </button>
                             )}
+                            <button 
+                                onClick={() => handleCancelBooking(booking._id)} 
+                                className="px-4 py-1.5 mt-2 text-xs border border-red-400 text-red-600 rounded-full hover:bg-red-50 transition-all cursor-pointer"
+                            >
+                                Cancel
+                            </button>
                         </div>
                     </div>
                 ))}

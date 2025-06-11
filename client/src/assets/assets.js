@@ -37,8 +37,9 @@ import listIcon from "./listIcon.svg";
 import uploadArea from "./uploadArea.svg";
 import totalBookingIcon from "./totalBookingIcon.svg";
 import totalRevenueIcon from "./totalRevenueIcon.svg";
-
-
+import calendarIcon from "./calendar.png";
+import seatIcon from "./seat.png";
+import roomIcon from "./bed.png";
 export const assets = {
     logo,
     searchIcon,
@@ -72,6 +73,9 @@ export const assets = {
     uploadArea,
     totalBookingIcon,
     totalRevenueIcon,
+    calendarIcon,
+    seatIcon,
+    roomIcon
 }
 
 export const cities = [

@@ -102,7 +102,7 @@ export const createBooking = async (req, res) => {
 
   } catch (error) {
     console.log(error);
-    
+
     res.json({ success: false, message: "Failed to create booking" });
   }
 };
@@ -182,3 +182,55 @@ export const stripePayment = async (req, res) => {
     res.json({ success: false, message: "Payment Failed" });
   }
 }
+
+
+export const deleteBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = req.user._id;
+    console.log(id);
+    const booking = await Booking.findById(id);
+    
+    if (!booking) {
+      return res.json({ success: false, message: "No Booking Found" });
+    }
+
+    if (booking.user.toString() !== user.toString()) {
+      return res.json({ success: false, message: "Unauthorized" });
+    }
+
+    await Booking.findByIdAndDelete(id);
+
+    const { room } = booking;
+    const roomData = await Room.findById(room).populate("hotel");
+    console.log(req.user.email)
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: req.user.email,
+      subject: 'Hotel Booking Cancellation Confirmation',
+      html: `
+        <h2>Your Booking Cancellation</h2>
+        <p>Dear ${req.user.username},</p>
+        <p>We have processed your request to cancel your booking. Below are the details of the cancelled booking:</p>
+        <ul>
+          <li><strong>Booking ID:</strong> ${booking.id}</li>
+          <li><strong>Hotel Name:</strong> ${roomData.hotel.name}</li>
+          <li><strong>Location:</strong> ${roomData.hotel.address}</li>
+          <li><strong>Check-In Date:</strong> ${booking.checkInDate.toDateString()}</li>
+          <li><strong>Booking Amount:</strong> ${process.env.CURRENCY || '$'} ${booking.totalPrice} /night</li>
+        </ul>
+        <p>Your booking has been successfully cancelled. If applicable, any refunds will be processed according to our cancellation policy.</p>
+        <p>If you have any questions or need further assistance, please contact us.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ success: true, message: "Booking deleted successfully" });
+
+  } catch (error) {
+    console.log(error);
+
+    res.json({ success: false, message: "Failed to create booking" });
+  }
+};
