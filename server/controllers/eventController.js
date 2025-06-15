@@ -85,7 +85,8 @@ export const updateEvent = async (req, res) => {
 export const bookEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { userId } = req.user;
+        let {  _id:userId  } = req.user;
+        userId = userId.toString();
         const event = await Event.findById(id);
         if(!event){
             return res.json({ success: false, message: "Event not found" });
@@ -107,7 +108,8 @@ export const bookEvent = async (req, res) => {
 export const deleteBookedEvent=async(req,res)=>{
     try {
         const { id } = req.params;
-        const { userId } = req.user;
+        let {  _id:userId  } = req.user;
+        userId = userId.toString();
         const event = await Event.findById(id);
         if(!event){
             return res.json({ success: false, message: "Event not found" });
@@ -143,7 +145,8 @@ export const checkEventAvailability = async (req, res) => {
 
 export const getUserEventBookings = async (req, res) => {
     try {
-        const {userId} = req.user;
+        let {  _id:userId  } = req.user;
+        userId = userId.toString();
         const events = await Event.find({ bookedBy: userId });
         res.json({ success: true, events });
     } catch (error) {

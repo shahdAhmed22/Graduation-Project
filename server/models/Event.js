@@ -34,7 +34,7 @@ const eventSchema = new Schema({
         default: 0
     },
     bookedBy: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type:String,
         ref: 'User'
     }],
     status: {
