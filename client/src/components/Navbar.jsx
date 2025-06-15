@@ -3,6 +3,7 @@ import { assets } from "../assets/assets";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useClerk, UserButton } from "@clerk/clerk-react";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const BookIcon = () => (
     <svg className="w-4 h-4 text-gray-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" >
@@ -16,7 +17,7 @@ const Navbar = () => {
         { name: 'Home', path: '/' },
         { name: 'Rooms', path: '/rooms' },
         { name: 'Events', path: '/events' },
-        { name: 'chat', path: '/chat' },
+        { name: 'Recommendation', path: '/chat' },
     ];
 
     const [isScrolled, setIsScrolled] = useState(false);
@@ -24,7 +25,7 @@ const Navbar = () => {
     const location = useLocation();
 
     const { openSignIn } = useClerk()
-    const { user, setShowHotelReg, isOwner, navigate } = useAppContext()
+    const { user, isOwner, navigate } = useAppContext()
 
     useEffect(() => {
         if (location.pathname !== "/") {
@@ -61,8 +62,8 @@ const Navbar = () => {
                 ))}
                 {
                     user && (
-                        <button className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`} onClick={() => isOwner ? navigate('/owner') : setShowHotelReg(true)}>
-                            {isOwner ? 'Dashboard' : 'List Your Hotel'}
+                        <button className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`} onClick={() => isOwner ? navigate('/owner') : toast.success("hello in our hotel")}>
+                            {isOwner ? 'Dashboard' : 'hello'}
                         </button>
                     )
                 }
@@ -106,8 +107,8 @@ const Navbar = () => {
                         <NavLink to="/my-bookings" onClick={() => setIsMenuOpen(false)}>
                             My Bookings
                         </NavLink>
-                        <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all" onClick={() => isOwner ? navigate('/owner') : setShowHotelReg(true)}>
-                            {isOwner ? 'Dashboard' : 'List Your Hotel'}
+                        <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all" onClick={() => isOwner ? navigate('/owner') : toast.success("hello in our hotel")}>
+                            {isOwner ? 'Dashboard' : 'hello'}
                         </button>
                     </>
                 )}
