@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Event from "../models/Event.js";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -92,6 +93,9 @@ export const bookEvent = async (req, res) => {
         if(event.bookedBy.includes(userId)){
             return res.json({ success: false, message: "Event already booked" });
         }
+        if(event.eventDate<new Date()){
+            return res.json({ success: false, message: "Event date has passed" });
+        }
         event.bookedBy.push(userId);
         await event.save();
         res.json({ success: true, message: "Event booked successfully", event });
@@ -136,12 +140,14 @@ export const checkEventAvailability = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 }
-export const getUserBookings = async (req, res) => {
+
+export const getUserEventBookings = async (req, res) => {
     try {
-        const { userId } = req.user;
-        const events = await Event.find({ bookedBy: {userId} });
+        const {userId} = req.user;
+        const events = await Event.find({ bookedBy: userId });
         res.json({ success: true, events });
     } catch (error) {
+        console.error(error);
         res.json({ success: false, message: error.message });
     }
-}
+};

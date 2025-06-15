@@ -17,6 +17,7 @@ import Loader from './components/Loader'
 import AllEvents from './pages/AllEvents'
 import EventDetails from './pages/EventDetails'
 import Chat from './pages/Chat'
+import EventBookings from './pages/EventBookings'
 
 const App = () => {
 
@@ -39,6 +40,7 @@ const App = () => {
         <Route path='/events/:id' element={<EventDetails />} />
         <Route path='/chat' element={<Chat />} />
         <Route path='my-bookings' element={<MyBookings />} />
+        <Route path='eventBookings' element={<EventBookings />} />
         < Route path="/loader/:nextUrl" element={<Loader />} />
         <Route path="/owner" element={<Layout />}>
           <Route index element={<Dashboard />} />
