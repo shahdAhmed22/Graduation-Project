@@ -1,7 +1,7 @@
 import { Router } from "express";
 import upload from "../middleware/uploadMiddleware.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { createEvent, deleteEvent, getEvent, getEvents, updateEvent } from "../controllers/eventController.js";
+import { bookEvent, checkEventAvailability, createEvent, deleteBookedEvent, deleteEvent, getEvent, getEvents, updateEvent } from "../controllers/eventController.js";
 
 
 const router=Router();
@@ -10,5 +10,8 @@ router.get("/", getEvents);
 router.get("/:id",  getEvent);
 router.delete("/:id", protect, deleteEvent);
 router.put("/:id", protect, updateEvent);
+router.post("/book/:id", protect, bookEvent);
+router.delete("/book/:id", protect, deleteBookedEvent);
+router.post("/check-availability", checkEventAvailability);
 
 export default router;

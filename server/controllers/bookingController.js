@@ -95,7 +95,6 @@ export const createBooking = async (req, res) => {
         <p>If you need to make any changes, feel free to contact us.</p>
       `,
     };
-
     await transporter.sendMail(mailOptions);
 
     res.json({ success: true, message: "Booking created successfully" });
@@ -225,12 +224,11 @@ export const deleteBooking = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-
     res.json({ success: true, message: "Booking deleted successfully" });
 
   } catch (error) {
     console.log(error);
 
-    res.json({ success: false, message: "Failed to create booking" });
+    res.json({ success: false, message: "Failed to cancel booking" });
   }
 };

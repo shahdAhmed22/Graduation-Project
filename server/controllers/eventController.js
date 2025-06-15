@@ -80,3 +80,68 @@ export const updateEvent = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 }
+
+export const bookEvent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { userId } = req.user;
+        const event = await Event.findById(id);
+        if(!event){
+            return res.json({ success: false, message: "Event not found" });
+        }
+        if(event.bookedBy.includes(userId)){
+            return res.json({ success: false, message: "Event already booked" });
+        }
+        event.bookedBy.push(userId);
+        await event.save();
+        res.json({ success: true, message: "Event booked successfully", event });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export const deleteBookedEvent=async(req,res)=>{
+    try {
+        const { id } = req.params;
+        const { userId } = req.user;
+        const event = await Event.findById(id);
+        if(!event){
+            return res.json({ success: false, message: "Event not found" });
+        }
+        if(!event.bookedBy.includes(userId)){
+            return res.json({ success: false, message: "Event not booked" });
+        }
+        event.bookedBy.pull(userId);
+        await event.save();
+        res.json({ success: true, message: "Event unbooked successfully", event });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export const checkEventAvailability = async (req, res) => {
+    try {
+        const { eventId,attendees } = req.body;
+        const event = await Event.findById(eventId);
+        if(!event){
+            return res.json({ success: false, message: "Event not found" });
+        }
+        const availableSlots = event.capacity - event.bookedBy.length;
+        if(availableSlots<attendees){
+            return res.json({ success:true,isAvailable: false, message: "Event is fully booked" });
+        }
+        console.log("availableSlots");
+        res.json({ success:true,isAvailable: true, availableSlots,message: "Event has available seats" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+export const getUserBookings = async (req, res) => {
+    try {
+        const { userId } = req.user;
+        const events = await Event.find({ bookedBy: {userId} });
+        res.json({ success: true, events });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}

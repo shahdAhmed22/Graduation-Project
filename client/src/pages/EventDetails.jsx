@@ -7,24 +7,27 @@ import toast from 'react-hot-toast';
 
 const EventDetails = () => {
     const { id } = useParams();
-    const { navigate, currency } = useAppContext();
+    const {  currency, getToken } = useAppContext();
 
     const [event, setEvent] = useState(null);
     const [mainImage, setMainImage] = useState(null);
-    const [attendees, setAttendees] = useState(1);
     const [isAvailable, setIsAvailable] = useState(false);
 
     // Check if the Event is Available
     const checkAvailability = async () => {
         try {
-            const { data } = await axios.post('/api/event/check-availability', { eventId: id, attendees });
+            const { data } = await axios.post(
+                '/api/event/check-availability',
+                { eventId: id },
+                { headers: { Authorization: `Bearer ${await getToken()}` } }
+            );
             if (data.success) {
                 if (data.isAvailable) {
                     setIsAvailable(true);
                     toast.success('Event has available seats');
                 } else {
                     setIsAvailable(false);
-                    toast.error('Event is fully booked');
+                    toast.error('Event is fully booked or already booked by you');
                 }
             } else {
                 toast.error(data.message);
@@ -36,22 +39,21 @@ const EventDetails = () => {
 
     // onSubmitHandler function to check availability & book the event
     const onSubmitHandler = async (e) => {
+        e.preventDefault();
         try {
-            e.preventDefault();
             if (!isAvailable) {
                 return checkAvailability();
+            }
+            const { data } = await axios.post(
+                `/api/event/book/${id}`,
+                {},
+                { headers: { Authorization: `Bearer ${await getToken()}` } }
+            );
+            if (data.success) {
+                toast.success(data.message);
+                window.scrollTo(0, 0);
             } else {
-                const { data } = await axios.post(
-                    '/api/event/book',
-                    { eventId: id, attendees }
-                );
-                if (data.success) {
-                    toast.success(data.message);
-                    navigate('/my-bookings');
-                    scrollTo(0, 0);
-                } else {
-                    toast.error(data.message);
-                }
+                toast.error(data.message);
             }
         } catch (error) {
             toast.error(error.message);
@@ -96,12 +98,19 @@ const EventDetails = () => {
                     <img className='w-full rounded-xl shadow-lg object-cover'
                         src={mainImage} alt='Event Image' />
                 </div>
-
                 <div className='grid grid-cols-2 gap-4 lg:w-1/2 w-full'>
-                    {event.images.length > 1 && event.images.map((image, index) => (
-                        <img key={index} onClick={() => setMainImage(image)}
-                            className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${mainImage === image && 'outline-3 outline-orange-500'}`} src={image} alt='Event Image' />
-                    ))}
+                    {event.images.length > 1 &&
+                        event.images.map((image, index) => (
+                            <img
+                                key={index}
+                                onClick={() => setMainImage(image)}
+                                className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${
+                                    mainImage === image && 'outline-3 outline-orange-500'
+                                }`}
+                                src={image}
+                                alt='Event Image'
+                            />
+                        ))}
                 </div>
             </div>
 
@@ -112,18 +121,26 @@ const EventDetails = () => {
                     <p className='text-base mt-2 text-gray-700'>{event.description}</p>
                 </div>
                 {/* Event Price */}
-                <p className='text-2xl font-medium'>{currency}{event.price}/person</p>
+                <p className='text-2xl font-medium'>
+                    {currency}
+                    {event.price}/person
+                </p>
             </div>
 
             {/* Booking Form */}
-            <form onSubmit={onSubmitHandler} className='flex flex-col md:flex-row items-start md:items-center justify-between bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.15)] p-6 rounded-xl mx-auto mt-16 max-w-6xl'>
+            <form
+                onSubmit={onSubmitHandler}
+                className='flex flex-col md:flex-row items-start md:items-center justify-between bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.15)] p-6 rounded-xl mx-auto mt-16 max-w-6xl'
+            >
                 <div className='flex flex-col flex-wrap md:flex-row items-start md:items-center gap-4 md:gap-10 text-gray-500'>
-                    <div className='flex flex-col'>
-                        <label htmlFor='attendees' className='font-medium'>Attendees</label>
-                        <input onChange={(e) => setAttendees(e.target.value)} value={attendees} id='attendees' type='number' min='1' max={event.capacity - event.bookedSeats} className='max-w-20 rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none' placeholder='1' required />
-                    </div>
+                    <p className='text-base'>Click to check availability and book your spot.</p>
                 </div>
-                <button type='submit' className='bg-primary hover:bg-primary-dull active:scale-95 transition-all text-white rounded-md max-md:w-full max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer'>{isAvailable ? "Book Now" : "Check Availability"}</button>
+                <button
+                    type='submit'
+                    className='bg-primary hover:bg-primary-dull active:scale-95 transition-all text-white rounded-md max-md:w-full max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer'
+                >
+                    {isAvailable ? 'Book Now' : 'Check Availability'}
+                </button>
             </form>
 
             {/* Event Specifications */}
@@ -146,13 +163,19 @@ const EventDetails = () => {
                     <img className='w-6.5' src={assets.seatIcon} alt='seat-icon' />
                     <div>
                         <p className='text-base'>Available Seats</p>
-                        <p className='text-gray-500'>{event.capacity - event.bookedSeats} / {event.capacity}</p>
+                        <p className='text-gray-500'>
+                            {event.capacity - event.bookedBy.length} / {event.capacity}
+                        </p>
                     </div>
                 </div>
             </div>
 
             <div className='max-w-3xl border-y border-gray-300 my-15 py-10 text-gray-500'>
-                <p>{event.description} This event offers a unique opportunity to engage with {event.eventName.toLowerCase()} in a vibrant setting. Limited seats are available, so book early to secure your spot!</p>
+                <p>
+                    {event.description} This event offers a unique opportunity to engage with{' '}
+                    {event.eventName.toLowerCase()} in a vibrant setting. Limited seats are available, so
+                    book early to secure your spot!
+                </p>
             </div>
         </div>
     );

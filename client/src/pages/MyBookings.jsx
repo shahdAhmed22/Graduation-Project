@@ -13,6 +13,7 @@ const MyBookings = () => {
             const { data } = await axios.get('/api/bookings/user', { 
                 headers: { Authorization: `Bearer ${await getToken()}` } 
             });
+            console.log(data)
             if (data.success) {
                 setBookings(data.bookings);
             } else {
@@ -38,7 +39,8 @@ const MyBookings = () => {
                 // Fetch fresh data to ensure consistency
                 await fetchUserBookings();
             } else {
-                toast.error(data.message || 'Failed to cancel booking');
+                console.error(data.message || 'Failed to cancel booking');
+                await fetchUserBookings();
             }
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || 'An error occurred while cancelling the booking';
